@@ -160,6 +160,8 @@ module Rack
         mapping, @map = @map, nil
         @use << proc { |app| generate_map(app, mapping) }
       end
+      # 生成一个方法，并放入@use变量中，这个方法有app作为传入的参数
+      # 什么时候使用@use里面的方法  
       @use << proc { |app| middleware.new(app, *args, &block) }
     end
     ruby2_keywords(:use) if respond_to?(:ruby2_keywords, true)
@@ -221,6 +223,8 @@ module Rack
     #
     # Note that providing a +path+ of +/+ will ignore any default application given in a +run+ statement
     # outside the block.
+    # do ...... end作为block
+    # 也就是说config.ru里面的map语句只是把block赋值给@map[path]
     def map(path, &block)
       @map ||= {}
       @map[path] = block
