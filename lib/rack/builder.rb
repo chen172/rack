@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# use 和 run只是往变量里卖弄放东西，并不会运行class
 module Rack
   # Rack::Builder implements a small DSL to iteratively construct Rack
   # applications.
