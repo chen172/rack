@@ -8,6 +8,12 @@ module Rack
   #   req = Rack::Request.new(env)
   #   req.post?
   #   req.params["data"]
+  # Rack::Request提供了一个简单的接口给Rack环境变量。
+  # 它是无状态的，这个传入的环境变量env给constructor将会直接被修改。
+  
+  # req = Rack::Request.new(env)
+  # req.post?
+  # req.params["data"]
 
   class Request
     (require_relative 'core_ext/regexp'; using ::Rack::RegexpExtensions) if RUBY_VERSION < '2.4'
