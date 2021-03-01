@@ -41,6 +41,7 @@ module Rack
     module Abstract
       # SessionHash is responsible to lazily load the session from store.
 
+      # 给头部rack.session设置为这个
       class SessionHash
         include Enumerable
         attr_writer :id
@@ -59,6 +60,7 @@ module Rack
           req.set_header RACK_SESSION_OPTIONS, options.dup
         end
 
+        # store是Persisted
         def initialize(store, req)
           @store = store
           @req = req
@@ -206,6 +208,10 @@ module Rack
       # contain an id reference. Only #find_session, #write_session and
       # #delete_session are required to be overwritten.
       #
+      # ID sets up了一个基本的框架用来实现一个基于id的sessioning服务。
+      # 发送给客户端的cookie用来维持sessions将只会包含一个id参考值。
+      # 只有find_session, write_session, delete_session需要重写。
+      
       # All parameters are optional.
       # * :key determines the name of the cookie, by default it is
       #   'rack.session'
@@ -220,6 +226,10 @@ module Rack
       # * :sidbits sets the number of bits in length that a generated session
       #   id will be.
       #
+      # 所有的参数都是可选的。
+      # * ：key决定了cookie的名字，默认是rack.session
+      # * :path, :domain, :expire_after, :secure, :httponly, :same_site
+      
       # These options can be set on a per request basis, at the location of
       # <tt>env['rack.session.options']</tt>. Additionally the id of the
       # session can be found within the options hash at the key :id. It is
@@ -256,6 +266,7 @@ module Rack
           @key = @default_options.delete(:key)
           @cookie_only = @default_options.delete(:cookie_only)
           @same_site = @default_options.delete(:same_site)
+          # 初始化session id
           initialize_sid
         end
 
@@ -267,10 +278,15 @@ module Rack
         def context(env, app = @app)
           # 得到来自客户端的请求
           req = make_request env
+          # 对来自客户端的请求设置好了session头部
+          # 设置了rack.session头部和rack.session.options头部
           prepare_session(req)
+          # 得到对客户端的响应
           status, headers, body = app.call(req.env)
+          # 使用Rack::Response构造响应
           res = Rack::Response::Raw.new status, headers
           commit_session(req, res)
+          # 返回对客户端的响应
           [status, headers, body]
         end
 
@@ -281,15 +297,18 @@ module Rack
         end
 
         def initialize_sid
+          # session id的长度，128位
           @sidbits = @default_options[:sidbits]
           @sid_secure = @default_options[:secure_random]
+          # 64
           @sid_length = @sidbits / 4
         end
 
         # Generate a new session id using Ruby #rand.  The size of the
         # session id is controlled by the :sidbits option.
         # Monkey patch this to use custom methods for session id generation.
-
+        # 使用rand方法生成一个新的session id。session id的长度是由sidbits选项控制的。
+        
         def generate_sid(secure = @sid_secure)
           if secure
             secure.hex(@sid_length)
@@ -302,13 +321,20 @@ module Rack
 
         # Sets the lazy session at 'rack.session' and places options and session
         # metadata into 'rack.session.options'.
-
+        
         def prepare_session(req)
+          # 得到客户端请求的头部RACK_SESSION,看是否设置了session
+          # RACK_SESSION是rack.session
+          # rack.session头部?????
           session_was               = req.get_header RACK_SESSION
           # 得到session这个instance
+          # 下面的代码是session = SessionHash.new(self,req),所以它其实是初始化session hash
           session                   = session_class.new(self, req)
+          # 设置头部rack.session的值为session
           req.set_header RACK_SESSION, session
+          # 设置头部rack.session.options的值为@default_options
           req.set_header RACK_SESSION_OPTIONS, @default_options.dup
+          # 如果客户端的请求有session的话，把session合在一起
           session.merge! session_was if session_was
         end
 
