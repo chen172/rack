@@ -67,21 +67,28 @@ module Rack
 
     class Cookie < Abstract::PersistedSecure
       # Encode session cookies as Base64
+      # base64 class
+      # 下面定义了三种编解码的方式
       class Base64
+        # 用base64编码一个字符串
         def encode(str)
           ::Base64.strict_encode64(str)
         end
-
+  
+        # 用base64解码字符串
         def decode(str)
           ::Base64.decode64(str)
         end
 
         # Encode session cookies as Marshaled Base64 data
         class Marshal < Base64
+          # 先用Marshal dump字符串，再用base64编码
           def encode(str)
             super(::Marshal.dump(str))
           end
 
+          # 先用base64解码，再用Marshal解码
+          # marshal.load不要传入不信任的输入参数。
           def decode(str)
             return unless str
             ::Marshal.load(super(str)) rescue nil
@@ -91,10 +98,13 @@ module Rack
         # N.B. Unlike other encoding methods, the contained objects must be a
         # valid JSON composite type, either a Hash or an Array.
         class JSON < Base64
+          # 先用JSON dump字符串，再用base64编码
           def encode(obj)
             super(::JSON.dump(obj))
           end
 
+          # 先用base64解码，再用JSON解码
+          # JSON.parse比Marshal.load更安全？？？
           def decode(str)
             return unless str
             ::JSON.parse(super(str)) rescue nil
@@ -116,6 +126,7 @@ module Rack
       end
 
       # Use no encoding for session cookies
+      # 不设置编解码
       class Identity
         def encode(str); str; end
         def decode(str); str; end
@@ -138,6 +149,7 @@ module Rack
         Called from: #{caller[0]}.
         MSG
         # 如果没有设置coder,就用Base64::Marshal.new
+        # 默认的编解码方式是危险的？？？？
         @coder = options[:coder] ||= Base64::Marshal.new
         # 执行父类的initialize方法，即Abstract::PersistedSecure的initialize方法
         super(app, options.merge!(cookie_only: true))
@@ -145,16 +157,19 @@ module Rack
 
       private
 
+      # 根据请求和session id找到session
       def find_session(req, sid)
         data = unpacked_cookie_data(req)
         data = persistent_session_id!(data)
         [data["session_id"], data]
       end
 
+      # 根据请求提取session id
       def extract_session_id(request)
         unpacked_cookie_data(request)["session_id"]
       end
 
+      # 根据请求unpack cookie数据
       def unpacked_cookie_data(request)
         request.fetch_header(RACK_SESSION_UNPACKED_COOKIE_DATA) do |k|
           session_data = request.cookies[@key]
@@ -183,6 +198,7 @@ module Rack
         end
       end
 
+      # 写session
       def write_session(req, session_id, session, options)
         session = session.merge("session_id" => session_id)
         session_data = coder.encode(session)
@@ -199,6 +215,7 @@ module Rack
         end
       end
 
+      # 删除session
       def delete_session(req, session_id, options)
         # Nothing to do here, data is in the client
         generate_sid unless options[:drop]
