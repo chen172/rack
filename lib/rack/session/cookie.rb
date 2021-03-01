@@ -38,6 +38,17 @@ module Rack
     #
     #     All parameters are optional.
     #
+    # 上面的写法相当于(使用use来把这个instance放入stack中)
+    # Rack::Session::Cookie.new(application, {
+    #                                :key => 'rack.session',
+    #                                :domain => 'foo.com',
+    #                                :path => '/',
+    #                                :expire_after => 2592000,
+    #                                :secret => 'change_me',
+    #                                :old_secret => 'also_change_me'  
+    # })
+    
+    
     # Example of a cookie with no encoding:
     #
     #   Rack::Session::Cookie.new(application, {
