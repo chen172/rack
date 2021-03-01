@@ -247,9 +247,12 @@ module Rack
 
         attr_reader :key, :default_options, :sid_secure
 
+        # Rack::Session::Cookie初始化会调用这个方法
         def initialize(app, options = {})
           @app = app
+          # 加入默认的选项
           @default_options = self.class::DEFAULT_OPTIONS.merge(options)
+          # 得到key, 也就是_gh_manage
           @key = @default_options.delete(:key)
           @cookie_only = @default_options.delete(:cookie_only)
           @same_site = @default_options.delete(:same_site)
@@ -450,6 +453,7 @@ module Rack
         end
       end
 
+      # Rack::Session::Cookie初始化的时候会调用这个父类进行初始化
       class PersistedSecure < Persisted
         class SecureSessionHash < SessionHash
           def [](key)
