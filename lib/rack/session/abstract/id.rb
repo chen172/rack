@@ -158,12 +158,16 @@ module Rack
           @exists = @store.send(:session_exists?, @req)
         end
 
+        # 是否加载了session, 得到@loaded变量
         def loaded?
           @loaded
         end
 
+        # session是不是空的
         def empty?
+          # 加载session
           load_for_read!
+          # 是否加载到了session数据
           @data.empty?
         end
 
@@ -180,6 +184,7 @@ module Rack
       private
 
         def load_for_read!
+          # 如果session还没有加载并且存在session,就加载它
           load! if !loaded? && exists?
         end
 
@@ -187,12 +192,17 @@ module Rack
           load! unless loaded?
         end
 
+        # 确定加载session,再这里就有了session数据
         def load!
+          # @store是class Persisted
           @id, session = @store.send(:load_session, @req)
+          # 字符串化session数据
           @data = stringify_keys(session)
+          # 加载session的状态设置为true
           @loaded = true
         end
 
+        # 字符串化Hash
         def stringify_keys(other)
           # Use transform_keys after dropping Ruby 2.4 support
           hash = {}
@@ -371,20 +381,29 @@ module Rack
         # Session should be committed if it was loaded, any of specific options like :renew, :drop
         # or :expire_after was given and the security permissions match. Skips if skip is given.
 
+        # 如果session被加载了，它应该被提交
+        # 传入的session参数是SessionHash的一个instance,只是初始化了一些变量
         def commit_session?(req, session, options)
           if options[:skip]
             false
           else
+            # 加载session或者强制更新session
+            # loaded_session?(session)为false,还没有加载session
             has_session = loaded_session?(session) || forced_session_update?(session, options)
             has_session && security_matches?(req, options)
           end
         end
 
+        # 加载session,先要确保session hash是一个session class
         def loaded_session?(session)
+          # session不是一个session_class或者session加载了
+          # session是一个session_class,但是session还没有加载
+          # 前面的判断是多余的？？？，永远为false
           !session.is_a?(session_class) || session.loaded?
         end
 
         def forced_session_update?(session, options)
+          # session是不是空的
           force_options?(options) && session && !session.empty?
         end
 
@@ -401,16 +420,22 @@ module Rack
         # the session options and passes them to #write_session. If successful
         # and the :defer option is not true, a cookie will be added to the
         # response with the session's id.
-
+        # 从环境变量中得到session,从session选项中得到session id
         def commit_session(req, res)
+          # 得到头部rack.session
           session = req.get_header RACK_SESSION
+          # 得到session选项，即头部rack.session.options
           options = session.options
 
+          # 如果选项drop或者renew设置了
           if options[:drop] || options[:renew]
+            # 重新得到一个session id
             session_id = delete_session(req, session.id || generate_sid, options)
+            # 如果没有session_id，就返回
             return unless session_id
           end
 
+          # 从客户端的请求中加载session
           return unless commit_session?(req, session, options)
 
           session.send(:load!) unless loaded_session?(session)
@@ -551,7 +576,7 @@ module Rack
 
         # All thread safety and session destroy procedures should occur here.
         # Should return a new session id or nil if options[:drop]
-
+        # 如果drop设置了，应该返回一个新的session id或者空
         def delete_session(req, sid, options)
           destroy_session req.env, sid, options
         end
