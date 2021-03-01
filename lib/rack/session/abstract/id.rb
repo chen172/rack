@@ -259,11 +259,13 @@ module Rack
           initialize_sid
         end
 
+        # Rack::Session::Cookie初始化之后，就会调用call方法来处理来自客户端的请求
         def call(env)
           context(env)
         end
 
         def context(env, app = @app)
+          # 得到来自客户端的请求
           req = make_request env
           prepare_session(req)
           status, headers, body = app.call(req.env)
@@ -303,6 +305,7 @@ module Rack
 
         def prepare_session(req)
           session_was               = req.get_header RACK_SESSION
+          # 得到session这个instance
           session                   = session_class.new(self, req)
           req.set_header RACK_SESSION, session
           req.set_header RACK_SESSION_OPTIONS, @default_options.dup
