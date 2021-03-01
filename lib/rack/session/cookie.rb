@@ -17,9 +17,16 @@ module Rack
     # session data is configurable and must respond to +encode+ and +decode+.
     # Both methods must take a string and return a string.
     #
+    # Rack::Session::Cookie提供了一个简单的基于cookie的session管理。
+    # 默认的，session是一个Ruby Hash,储存为base64编码的marshalled data,设置为:key(默认为rack.session)。
+    # 编码session data的对象是可以配置的，对应为encode和decode。
+    # 这两个方法传入一个字符串和返回一个字符串。
+    
     # When the secret key is set, cookie data is checked for data integrity.
     # The old secret key is also accepted and allows graceful secret rotation.
     #
+    # 当这个secret key设置了，cookie data用来检查数据的完整性。
+    # 
     # Example:
     #
     #     use Rack::Session::Cookie, :key => 'rack.session',
@@ -105,6 +112,7 @@ module Rack
 
       attr_reader :coder
 
+      # 初始化Rack::Session::Cookie
       def initialize(app, options = {})
         @secrets = options.values_at(:secret, :old_secret).compact
         @hmac = options.fetch(:hmac, "SHA1")
@@ -118,7 +126,9 @@ module Rack
 
         Called from: #{caller[0]}.
         MSG
+        # 如果没有设置coder,就用Base64::Marshal.new
         @coder = options[:coder] ||= Base64::Marshal.new
+        # 执行父类的initialize方法，即Abstract::PersistedSecure的initialize方法
         super(app, options.merge!(cookie_only: true))
       end
 
