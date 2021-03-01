@@ -139,6 +139,9 @@ module Rack
         @secrets = options.values_at(:secret, :old_secret).compact
         @hmac = options.fetch(:hmac, "SHA1")
 
+        # 检查设置的选项是否安全
+        # 安全警告，没有提供secret选项给Rack::Session::Cookie
+        # 这个暴露出一个安全威胁。强烈建议提供一个secret来阻止可能的构造的cookie
         warn <<-MSG unless secure?(options)
         SECURITY WARNING: No secret option provided to Rack::Session::Cookie.
         This poses a security threat. It is strongly recommended that you
@@ -159,6 +162,7 @@ module Rack
 
       # 根据请求和session id找到session
       def find_session(req, sid)
+        # unpacked 来自请求的cookie数据
         data = unpacked_cookie_data(req)
         data = persistent_session_id!(data)
         [data["session_id"], data]
@@ -228,11 +232,14 @@ module Rack
         end
       end
 
+      # 生成hmac
       def generate_hmac(data, secret)
         OpenSSL::HMAC.hexdigest(@hmac, secret, data)
       end
 
+      # 检查选项是否安全
       def secure?(options)
+        # secrets的大小大于1或者（coder和let_coder_handle_secure_encodeing这两个选项设置了）
         @secrets.size >= 1 ||
         (options[:coder] && options[:let_coder_handle_secure_encoding])
       end
