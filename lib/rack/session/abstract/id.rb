@@ -311,8 +311,11 @@ module Rack
           req = make_request env
           # 对来自客户端的请求设置好了session头部
           # 设置了rack.session头部和rack.session.options头部
+          # 在env中添加了rack.session和rack.session.options
           prepare_session(req)
           # 得到对客户端的响应
+          # 调用app,这个时候可能设置rack.session hash
+          # 给rack.session 添加session id
           status, headers, body = app.call(req.env)
           # 使用Rack::Response构造响应
           res = Rack::Response::Raw.new status, headers
@@ -357,10 +360,12 @@ module Rack
           # 得到客户端请求的头部RACK_SESSION,看是否设置了session
           # RACK_SESSION是rack.session
           # rack.session头部?????
+          # 请求的env中是否有rack.session
           session_was               = req.get_header RACK_SESSION
           # 得到session这个instance
           # 下面的代码是session = SessionHash.new(self,req),所以它其实是初始化session hash
           session                   = session_class.new(self, req)
+          # rack.session和rack.session.options都是放到了env这个hash中
           # 设置头部rack.session的值为session
           req.set_header RACK_SESSION, session
           # 设置头部rack.session.options的值为@default_options
