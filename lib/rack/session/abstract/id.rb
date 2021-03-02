@@ -78,7 +78,7 @@ module Rack
         # 如果session加载了或者@id存在，就返回@id
         def id
           return @id if @loaded or instance_variable_defined?(:@id)
-          # 调用Persisted instance的方法send
+          # 调用Persisted instance的方法extract_session_id来得到session id
           @id = @store.send(:extract_session_id, @req)
         end
 
@@ -135,6 +135,7 @@ module Rack
 
         def destroy
           clear
+          # 调用Persisted instance的方法delete_session来destroy session id
           @id = @store.send(:delete_session, @req, id, options)
         end
 
@@ -212,7 +213,7 @@ module Rack
         # 确定加载session,再这里就有了session数据
         def load!
           # @store是class Persisted
-          # 还是要通过Persisted instance的send方法来加载session
+          # 还是要通过Persisted instance的load_session方法来加载session id
           # 然后就可以得到session id, session data, session的加载状态也设为true
           @id, session = @store.send(:load_session, @req)
           # 字符串化session数据
@@ -371,15 +372,20 @@ module Rack
         # Extracts the session id from provided cookies and passes it and the
         # environment to #find_session.
 
+        # 从客户端的请求中的cookie提取session id
         def load_session(req)
+          # 从请求中得到sid
           sid = current_session_id(req)
+          # 根据请求和sid得到session
           sid, session = find_session(req, sid)
           [sid, session || {}]
         end
 
         # Extract session id from request object.
 
+        # 从客户端请求对象中提取session id
         def extract_session_id(request)
+          # 从请求的cookies中得到sid
           sid = request.cookies[@key]
           sid ||= request.params[@key] unless @cookie_only
           sid
@@ -387,12 +393,15 @@ module Rack
 
         # Returns the current session id from the SessionHash.
 
+        # 从SessionHash中返回当前的session id
         def current_session_id(req)
+          # 从客户端请求的头部rack.session得到session id
           req.get_header(RACK_SESSION).id
         end
 
         # Check if the session exists or not.
 
+        # 检查客户端请求是否存在session
         def session_exists?(req)
           value = current_session_id(req)
           value && !value.empty?
