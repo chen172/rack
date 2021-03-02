@@ -17,6 +17,7 @@ module Rack
 
       attr_reader :public_id
 
+      # 初始化public_id
       def initialize(public_id)
         @public_id = public_id
       end
@@ -33,6 +34,8 @@ module Rack
 
       private
 
+      # Digest::SHA256.hexdigest 'abc'        # => "ba7816bf8..."
+      # 转化session id
       def hash_sid(sid)
         Digest::SHA256.hexdigest(sid)
       end
@@ -48,30 +51,38 @@ module Rack
 
         Unspecified = Object.new
 
+        # 得到客户端请求的头部rack.session
         def self.find(req)
           req.get_header RACK_SESSION
         end
 
+        # 给客户端请求的头部rack.session 设置session
         def self.set(req, session)
           req.set_header RACK_SESSION, session
         end
 
+        # 给客户端请求的头部rack.session.options 设置options
         def self.set_options(req, options)
           req.set_header RACK_SESSION_OPTIONS, options.dup
         end
 
-        # store是Persisted
+        # store是Persisted instance
+        # 初始化，设置变量
+        # 初始化时是没有加载session, 加载状态设置为false
         def initialize(store, req)
           @store = store
           @req = req
           @loaded = false
         end
 
+        # 如果session加载了或者@id存在，就返回@id
         def id
           return @id if @loaded or instance_variable_defined?(:@id)
+          # 调用Persisted instance的方法send
           @id = @store.send(:extract_session_id, @req)
         end
 
+        # 得到客户端的请求头部rack.session.options
         def options
           @req.session_options
         end
@@ -81,6 +92,7 @@ module Rack
           @data.each(&block)
         end
 
+        # 得到session hash的某个字段
         def [](key)
           load_for_read!
           @data[key.to_s]
@@ -100,6 +112,7 @@ module Rack
           end
         end
 
+        # 判断session hash是否存在某个字段
         def has_key?(key)
           load_for_read!
           @data.has_key?(key.to_s)
@@ -107,12 +120,14 @@ module Rack
         alias :key? :has_key?
         alias :include? :has_key?
 
+        # 往session hash写入某个字段
         def []=(key, value)
           load_for_write!
           @data[key.to_s] = value
         end
         alias :store :[]=
 
+        # 清除session hash
         def clear
           load_for_write!
           @data.clear
@@ -183,18 +198,22 @@ module Rack
 
       private
 
+        # 下面两个方法都是加载session
         def load_for_read!
           # 如果session还没有加载并且存在session,就加载它
           load! if !loaded? && exists?
         end
 
         def load_for_write!
+          # 如果没有加载session,就加载它
           load! unless loaded?
         end
 
         # 确定加载session,再这里就有了session数据
         def load!
           # @store是class Persisted
+          # 还是要通过Persisted instance的send方法来加载session
+          # 然后就可以得到session id, session data, session的加载状态也设为true
           @id, session = @store.send(:load_session, @req)
           # 字符串化session数据
           @data = stringify_keys(session)
@@ -268,6 +287,7 @@ module Rack
         attr_reader :key, :default_options, :sid_secure
 
         # Rack::Session::Cookie初始化会调用这个方法
+        # 初始化只是初始化一些变量
         def initialize(app, options = {})
           @app = app
           # 加入默认的选项
