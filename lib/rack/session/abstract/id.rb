@@ -319,6 +319,7 @@ module Rack
           status, headers, body = app.call(req.env)
           # 使用Rack::Response构造响应
           res = Rack::Response::Raw.new status, headers
+          # commit_session应该是通过env的rack.session和rack.session.options构造了Set-Cookie头部
           commit_session(req, res)
           # 返回对客户端的响应
           [status, headers, body]
