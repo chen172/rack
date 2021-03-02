@@ -455,7 +455,8 @@ module Rack
         # the session options and passes them to #write_session. If successful
         # and the :defer option is not true, a cookie will be added to the
         # response with the session's id.
-        # 从环境变量中得到session,从session选项中得到session id
+        # 从环境变量(env)中得到session,从session选项中得到session id,传入到write_session方法中。
+        # 如果成功了，并且defer选项设置为false,一个cookie将会被添加到响应的头部中，即Set-Cookie头部
         def commit_session(req, res)
           # 得到头部rack.session
           session = req.get_header RACK_SESSION
