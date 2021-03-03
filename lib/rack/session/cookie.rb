@@ -198,6 +198,7 @@ module Rack
 
         def initialize(session_id, cookie_value)
           super(session_id)
+          # cookie_value是编码后的session id加上hmac
           @cookie_value = cookie_value
         end
       end
