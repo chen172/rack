@@ -464,6 +464,7 @@ module Rack
           options = session.options
 
           # 如果选项drop或者renew设置了
+          # 默认这些都是false,也就是不会执行下面的代码
           if options[:drop] || options[:renew]
             # 重新得到一个session id
             session_id = delete_session(req, session.id || generate_sid, options)
@@ -479,6 +480,7 @@ module Rack
           # 加载session之后，可以得到session id
           session_id ||= session.id
           # 得到session_data
+          # session_data是一个hash，包含session id
           session_data = session.to_hash.delete_if { |k, v| v.nil? }
 
           # 把session id和session data写到头部中
