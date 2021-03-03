@@ -474,15 +474,20 @@ module Rack
           # 从客户端的请求中加载session
           return unless commit_session?(req, session, options)
 
+          # 如果session没有加载，就加载session
           session.send(:load!) unless loaded_session?(session)
+          # 加载session之后，可以得到session id
           session_id ||= session.id
+          # 得到session_data
           session_data = session.to_hash.delete_if { |k, v| v.nil? }
 
+          # 把session id和session data写到头部中
           if not data = write_session(req, session_id, session_data, options)
             req.get_header(RACK_ERRORS).puts("Warning! #{self.class.name} failed to save session. Content dropped.")
           elsif options[:defer] and not options[:renew]
             req.get_header(RACK_ERRORS).puts("Deferring cookie for #{session_id}") if $VERBOSE
           else
+            # 新建一个hash 
             cookie = Hash.new
             cookie[:value] = cookie_value(data)
             cookie[:expires] = Time.now + options[:expire_after] if options[:expire_after]
@@ -493,6 +498,7 @@ module Rack
             else
               cookie[:same_site] = @same_site
             end
+            # Set-Cookie的值设为cookie
             set_cookie(req, res, cookie.merge!(options))
           end
         end
