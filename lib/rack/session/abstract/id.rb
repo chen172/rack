@@ -484,6 +484,7 @@ module Rack
           session_data = session.to_hash.delete_if { |k, v| v.nil? }
 
           # 把session id和session data写到头部中
+          # 得到的data是一个instance
           if not data = write_session(req, session_id, session_data, options)
             req.get_header(RACK_ERRORS).puts("Warning! #{self.class.name} failed to save session. Content dropped.")
           elsif options[:defer] and not options[:renew]
@@ -491,6 +492,7 @@ module Rack
           else
             # 新建一个hash 
             cookie = Hash.new
+            # 得到cookie的值，就是通过这个值来管理session会话
             cookie[:value] = cookie_value(data)
             cookie[:expires] = Time.now + options[:expire_after] if options[:expire_after]
             cookie[:expires] = Time.now + options[:max_age] if options[:max_age]
@@ -515,6 +517,8 @@ module Rack
 
         def set_cookie(request, res, cookie)
           if request.cookies[@key] != cookie[:value] || cookie[:expires]
+            # 设置Set-Cookie头部，@key默认为rack.session, ghe初始化为_gh_manage
+            # cookie的值为session id编码后加上hmac
             res.set_cookie_header =
               Utils.add_cookie_to_header(res.set_cookie_header, @key, cookie)
           end
