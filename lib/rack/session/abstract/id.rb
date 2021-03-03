@@ -362,14 +362,18 @@ module Rack
           # RACK_SESSION是rack.session
           # rack.session头部?????
           # 请求的env中是否有rack.session
+          # 得到env["rack.session"]
+          # 来自客户端的请求应该是没有这个头部的
           session_was               = req.get_header RACK_SESSION
           # 得到session这个instance
           # 下面的代码是session = SessionHash.new(self,req),所以它其实是初始化session hash
           session                   = session_class.new(self, req)
           # rack.session和rack.session.options都是放到了env这个hash中
           # 设置头部rack.session的值为session
+          # env["rack.session"] = session
           req.set_header RACK_SESSION, session
           # 设置头部rack.session.options的值为@default_options
+          # env["rack.session.options"] = @default_options
           req.set_header RACK_SESSION_OPTIONS, @default_options.dup
           # 如果客户端的请求有session的话，把session合在一起
           session.merge! session_was if session_was
