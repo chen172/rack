@@ -204,17 +204,22 @@ module Rack
 
       # 写session
       def write_session(req, session_id, session, options)
+        # 给session hash添加session_id字段
         session = session.merge("session_id" => session_id)
+        # 编码session hash
         session_data = coder.encode(session)
 
         if @secrets.first
+          # 通过session_data和secret生成hmac, 并把生成的hmac放到session_data中
           session_data << "--#{generate_hmac(session_data, @secrets.first)}"
         end
 
+        # session data的大小是否超过4096
         if session_data.size > (4096 - @key.size)
           req.get_header(RACK_ERRORS).puts("Warning! Rack::Session::Cookie data size exceeds 4K.")
           nil
         else
+          # 根据session_id和编码的session_data得到SessionId instance
           SessionId.new(session_id, session_data)
         end
       end
