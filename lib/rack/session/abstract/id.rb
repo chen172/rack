@@ -463,6 +463,8 @@ module Rack
         # 如果成功了，并且defer选项设置为false,一个cookie将会被添加到响应的头部中，即Set-Cookie头部
         def commit_session(req, res)
           # 得到头部rack.session
+          # 得到env["rack.session"]
+          # 得到SessionHash instance, not load
           session = req.get_header RACK_SESSION
           # 得到session选项，即头部rack.session.options
           options = session.options
@@ -480,6 +482,8 @@ module Rack
           return unless commit_session?(req, session, options)
 
           # 如果session没有加载，就加载session
+          # 在prepare_session的时候只是得到了SessionHash这个instance,还没有加载
+          # 在这里加载这个session
           session.send(:load!) unless loaded_session?(session)
           # 加载session之后，可以得到session id
           session_id ||= session.id
