@@ -259,18 +259,26 @@ module Rack
         end
       end
 
+      # 得到客户端请求的cookies
       def cookies
+        # 得到头部'rack.request.cookie_hash'
         hash = fetch_header(RACK_REQUEST_COOKIE_HASH) do |key|
           set_header(key, {})
         end
-
+        
+        # 得到头部'HTTP_COOKIE'（来自客户端的cookie）
+        # env['HTTP_COOKIE']
         string = get_header(HTTP_COOKIE)
 
+        # 得到头部'rack.request.cookie_string'
+        # 如果env['HTTP_COOKIE']不等于env['rack.request.cookie_string'], 
+        # 设置env['rack.request.cookie_string'] = env['HTTP_COOKIE']
         unless string == get_header(RACK_REQUEST_COOKIE_STRING)
           hash.replace Utils.parse_cookies_header(string)
           set_header(RACK_REQUEST_COOKIE_STRING, string)
         end
 
+        # 返回cookie hash
         hash
       end
 
