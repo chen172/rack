@@ -5,6 +5,7 @@
 
 # 对于外部来说，session的接口就是env['rack.session']
 # 所以这个内部文件就是要得到env['rack.session']
+# 对这个内部文件来说env['rack.session']就是SessionHash
 require_relative '../../../rack'
 require 'time'
 require 'securerandom'
