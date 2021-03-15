@@ -1,5 +1,8 @@
 # frozen_string_literal: true
-
+# 这个文件分为三部分
+# 1.处理参数
+# 2.从env中得到头部
+# 3.一些帮助方法，如session,请求的方法
 module Rack
   # Rack::Request provides a convenient interface to a Rack
   # environment.  It is stateless, the environment +env+ passed to the
