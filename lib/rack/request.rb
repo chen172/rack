@@ -54,6 +54,8 @@ module Rack
 
     module Env
       # The environment of the request.
+      # rack处理env表示的请求数据
+      # 虽然是以header作为后缀的，其实只是得到env这个hash的值，或者设置值
       attr_reader :env
 
       def initialize(env)
@@ -63,11 +65,13 @@ module Rack
 
       # Predicate method to test to see if `name` has been set as request
       # specific data
+      # 是否有这个头部
       def has_header?(name)
         @env.key? name
       end
 
       # Get a request specific value for `name`.
+      # 得到头部
       def get_header(name)
         @env[name]
       end
