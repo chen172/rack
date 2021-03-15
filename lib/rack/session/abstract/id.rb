@@ -3,6 +3,8 @@
 # AUTHOR: blink <blinketje@gmail.com>; blink#ruby-lang@irc.freenode.net
 # bugrep: Andreas Zehnder
 
+# 对于外部来说，session的接口就是env['rack.session']
+# 所以这个内部文件就是要得到env['rack.session']
 require_relative '../../../rack'
 require 'time'
 require 'securerandom'
