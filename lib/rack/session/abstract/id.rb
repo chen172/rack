@@ -73,6 +73,7 @@ module Rack
         # store是Persisted instance
         # 初始化，设置变量
         # 初始化时是没有加载session, 加载状态设置为false
+        # store是调用SessionHash的方法的class,因为SessionHash的一些方法需要用到那个class的中的某些方法
         def initialize(store, req)
           @store = store
           @req = req
