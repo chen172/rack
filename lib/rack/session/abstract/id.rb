@@ -312,9 +312,11 @@ module Rack
         def context(env, app = @app)
           # 得到来自客户端的请求
           req = make_request env
-          # 对来自客户端的请求设置好了session头部
           # 设置了rack.session头部和rack.session.options头部
-          # 在env中添加了rack.session和rack.session.options
+          # 就是在env中添加了rack.session和rack.session.options
+          # 其中env['rack.session'] = SessionHash
+          # env['rack.session.options'] = @default_options
+          # 如果一开始的请求中有env['rack.session'],则和新设置的合在一起
           prepare_session(req)
           # 得到对客户端的响应
           # 调用app,这个时候可能设置rack.session hash
