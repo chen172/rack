@@ -19,6 +19,9 @@ wrapped = Rack::Session::Cookie.new(app,
 
 # first call to get a cookie
 env = {}
+# 调用rack session的call方法，rack session的call方法会调用app
+# 首先准备session,env['rack.session'] = SessionHash没有加载
+# 然后调用app,在这里，app给env['rack.session']这个Hash填充了值
 status, headers, body = wrapped.call(env)
 cookie = headers["Set-Cookie"].split(";").first
 
