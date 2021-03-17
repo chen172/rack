@@ -6,6 +6,7 @@ require "delegate"
 app = Proc.new do |env|
   # write something to the session to create the cookie on first call
   # env['rack.session']是SessionHash instance
+  # 这行代码加载了session,并且得到了session_id
   env["rack.session"]["foo"] = "bar"
   # read session ID to trigger bug on second call
   env["rack.session"]["session_id"]
