@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# 对于服务端来说，理解的是session,对于客户端来说看到的是cookie
+# 所以需要把session编码为cookie,发送给客户端。
+# 解码来自客户端的cookie,让服务端理解这是不是有效的session,是不是一个可持续的会话。
+
 require 'openssl'
 require 'zlib'
 require_relative 'abstract/id'
@@ -208,12 +212,14 @@ module Rack
         # 给session hash添加session_id字段
         session = session.merge("session_id" => session_id)
         # 编码session hash
+        # 对服务端易于理解的session数据编码成cookie
         session_data = coder.encode(session)
 
         if @secrets.first
           # 通过session_data和secret生成hmac, 并把生成的hmac放到session_data中
           session_data << "--#{generate_hmac(session_data, @secrets.first)}"
         end
+        # 上面的代码已经生成了发送给客户端的cookie
 
         # session data的大小是否超过4096
         if session_data.size > (4096 - @key.size)
