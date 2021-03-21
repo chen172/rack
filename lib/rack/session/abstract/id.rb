@@ -605,6 +605,7 @@ module Rack
         end
 
         def extract_session_id(*)
+          # 调用Persisted class里面的extract_session_id方法来得到来自客户端的session id
           public_id = super
           public_id && SessionId.new(public_id)
         end
