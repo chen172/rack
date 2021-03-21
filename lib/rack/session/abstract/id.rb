@@ -18,6 +18,8 @@ module Rack
 
   module Session
 
+    # 这个SessionId用来hash化session id
+    # hash function是one-way的
     class SessionId
       ID_VERSION = 2
 
@@ -43,6 +45,7 @@ module Rack
       # Digest::SHA256.hexdigest 'abc'        # => "ba7816bf8..."
       # 转化session id
       def hash_sid(sid)
+        # 使用了sha2 family算法，代码是用c实现的
         Digest::SHA256.hexdigest(sid)
       end
     end
