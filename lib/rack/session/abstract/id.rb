@@ -581,7 +581,9 @@ module Rack
           def [](key)
             if key == "session_id"
               load_for_read!
+              # 调用SessionHash的id方法
               case id
+              # 如果返回值是SessionId这个class,就返回没有hash化的session id
               when SessionId
                 id.public_id
               else
