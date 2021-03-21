@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# 这个文件是用来对客户端的cookie和服务端的session进行转化的文件
+
 # 对于服务端来说，理解的是session,对于客户端来说看到的是cookie
 # 所以需要把session编码为cookie,发送给客户端。
 # 解码来自客户端的cookie,让服务端理解这是不是有效的session,是不是一个可持续的会话。
