@@ -360,6 +360,7 @@ module Rack
           if secure
             secure.hex(@sid_length)
           else
+            # 生成session id
             "%0#{@sid_length}x" % Kernel.rand(2**@sidbits - 1)
           end
         rescue NotImplementedError
@@ -596,8 +597,10 @@ module Rack
         end
 
         def generate_sid(*)
+          # 调用Persisted class里面的generate_sid方法来生成session id
           public_id = super
 
+          # 用生成的session id来实例化SessionId，在这个instance中，可以Hash化session id
           SessionId.new(public_id)
         end
 
