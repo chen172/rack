@@ -178,15 +178,19 @@ module Rack
       end
 
       # 根据请求unpack cookie数据
+      # 将来自客户端的cookie数据解码成服务端可以理解的session数据
       def unpacked_cookie_data(request)
         request.fetch_header(RACK_SESSION_UNPACKED_COOKIE_DATA) do |k|
           session_data = request.cookies[@key]
 
           if @secrets.size > 0 && session_data
+            # 得到session_data和hmac
             session_data, _, digest = session_data.rpartition('--')
+            # 判断hmac是否匹配
             session_data = nil unless digest_match?(session_data, digest)
           end
 
+          # 如果来自客户端的hmac对的上，就解码session_data
           request.set_header(k, coder.decode(session_data) || {})
         end
       end
@@ -237,6 +241,7 @@ module Rack
         generate_sid unless options[:drop]
       end
 
+      # 判断来自客户端的hmac是否匹配
       def digest_match?(data, digest)
         return unless data && digest
         @secrets.any? do |secret|
