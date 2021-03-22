@@ -400,6 +400,7 @@ module Rack
           # 从请求中得到sid
           sid = current_session_id(req)
           # 根据请求和sid得到session
+          # 根据客户端的cookie解码为服务端可以理解的session hash数据
           sid, session = find_session(req, sid)
           [sid, session || {}]
         end
