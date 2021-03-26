@@ -249,6 +249,7 @@ module Rack
       def digest_match?(data, digest)
         return unless data && digest
         @secrets.any? do |secret|
+          # 来自客户端的cookie的Hmac部分是否匹配，主要看secret
           Rack::Utils.secure_compare(digest, generate_hmac(data, secret))
         end
       end
