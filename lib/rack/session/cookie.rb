@@ -219,6 +219,8 @@ module Rack
         session = session.merge("session_id" => session_id)
         # 编码session hash
         # 对服务端易于理解的session数据编码成cookie
+        # session里面包含session_id字段，还有app自定义的一些字段，在app端接收到来自客户端的session时，
+        # 解码session,得到app自定义的字段，根据app赋予它的意义来使用。
         session_data = coder.encode(session)
 
         if @secrets.first
