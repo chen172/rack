@@ -12,6 +12,9 @@ module Rack
     # and a block that checks if a username and password pair are valid.
     #
     # See also: <tt>example/protectedlobster.rb</tt>
+    
+    # Rack::Auth::Basic实现了HTTP基本认证，RFC 2617
+    # 
 
     class Basic < AbstractHandler
 
