@@ -143,6 +143,7 @@ module Rack
       # 初始化Rack::Session::Cookie
       def initialize(app, options = {})
         @secrets = options.values_at(:secret, :old_secret).compact
+        # SHA1生成的消息摘要是20个字节的，16进制有40个。
         @hmac = options.fetch(:hmac, "SHA1")
 
         # 检查设置的选项是否安全
