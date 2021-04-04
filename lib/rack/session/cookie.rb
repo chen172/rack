@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# 用来生成hmac的secret的长度是不确定的，所以brute force is hard。
+
 # 这个文件是用来对客户端的cookie和服务端的session进行转化的文件
 
 # 对于服务端来说，理解的是session,对于客户端来说看到的是cookie
