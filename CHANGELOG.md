@@ -1,6 +1,7 @@
 # Changelog
 
 All notable changes to this project will be documented in this file. For info on how to format all future additions to this file please reference [Keep A Changelog](https://keepachangelog.com/en/1.0.0/).
+
 所有需要注意的改变会在这个文件记录。关于对这个文件格式化将来的特性的信息参考[Keep A Changelog](https://keepachangelog.com/en/1.0.0/)。
 
 ## [3.0.0] - Unreleased
